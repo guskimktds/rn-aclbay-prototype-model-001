@@ -18,3 +18,12 @@ ACLMain 화면으로 이동
 ACLMain 화면은 기본적으로 거래목록을 보여준다.
 
 거래등록은 왼쪽 상단에 탭메뉴를 통해서 이동한다.
+
+
+SharedPreferences 를 사용해서 사용자 토큰을 저장하고 사용
+npm install react-native-default-preference --save
+
+
+oauth token basic auth 방식
+처리 시 body: 'grant_type=password&username=USERID&password=PASSWORD'
+로 처리해야 정상 동작, formdata 로 만들어 처리시 Network request failed 발생

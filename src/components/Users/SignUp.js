@@ -12,18 +12,37 @@ import {
 
 export default class SignUp extends Component {
 
-  constructor(props) {
-    super(props);
-    state = {
-      fullName: '',
-      email   : '',
-      password: '',
-    }
-  }
+  // constructor(props) {
+  //   super(props);
+  //   state = {
+  //     fullName: '',
+  //     email   : '',
+  //     password: '',
+  //   }
+  // }
+
+  state = {
+      loginId: 'aclbay01',
+      loginPassword: 'pass',
+      detail: {
+        islandName : '울릉도',
+        characterName : '사기꾼너굴',
+        pushUuid : 'abcdefghi123456789',
+      },
+      email: '',
+      phone:'',
+      name:'',
+      isLoadingNow: false,
+      isNotDuplId: false
+  };
 
   onClickListener = (viewId) => {
     Alert.alert("Alert", "Button pressed "+viewId);
+    if(viewId === 'sign_up')
+      this._doRegister()
   }
+
+
 
   render() {
     return (

@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "@react-native-community/masked-view": "^0.1.10",
+    "base-64": "^0.1.0",
     "react": "16.11.0",
     "react-devtools": "^4.6.0",
     "react-native": "0.62.2",
+    "react-native-default-preference": "^1.4.2",
     "react-native-gesture-handler": "^1.6.1",
     "react-native-picker-select": "^7.0.0",
     "react-native-reanimated": "^1.8.0",

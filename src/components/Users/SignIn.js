@@ -9,38 +9,33 @@ import {
   Image,
   Alert
 } from 'react-native';
+import DefaultPreference from 'react-native-default-preference'; //토큰저장, 사용
+import base64 from 'base-64';
+import CommonConf from '../CommonConf';
+
 
 export default class SignIn extends Component {
 
-  constructor(props) {
-    super(props);
-    state = {
-      id : '',
-      password: '',
-    }
-  }
-
-  // onClickListener = (viewId) => {
-  //   Alert.alert("Alert", "Button pressed "+viewId);
-  // }
-
-  static navigationOptions = {
-      headerShown: false,
-      title: "로그인",
-      headerStyle: {
-          backgroundColor: '#4baec5',
-      },
-      headerTintColor: '#fff',
-      headerTitleStyle: {
-          fontWeight: 'bold',
-          color: '#fff'
-      },
+  state = {
+    //isLoadingNow : false,
+    id : '',
+    password: '',
+    loginToken: '',
+    isToken: false,
   };
 
-  // 회원가입 화면 이동
-  _goRegister = () => {
-      this.props.navigation.navigate('SignUp')
-  }
+  // static navigationOptions = {
+  //     headerShown: false,
+  //     title: "로그인",
+  //     headerStyle: {
+  //         backgroundColor: '#4baec5',
+  //     },
+  //     headerTintColor: '#fff',
+  //     headerTitleStyle: {
+  //         fontWeight: 'bold',
+  //         color: '#fff'
+  //     },
+  // };
 
   _showInputTextErrorMsg = (type) => {
       let msg = '';
@@ -82,201 +77,145 @@ export default class SignIn extends Component {
       return true;
   }
 
-  //로그인유지 시
-  _doLoginWithToken = (token) => {
-      this.setState({
-          isLoadingNow: true
-      })
+  //토큰이 존재하여 기존 토튼을 얻어서 로그인 수행
+  _doLoginWithToken = () => {
+      console.log("================= _doLoginWithToken start====================");
+      var url = 'http://' + CommonConf.urlHost + ':'+ CommonConf.port+'/api/access/user';
+      //var url = 'http://54.180.77.236:8080/api/access/user';
+      //let tokenValue = 'fba278e1-30d8-471f-90fe-5d2b0486b048';
+      let tokenValue = this.state.loginToken;
+      console.log(url+", token: "+tokenValue);
 
-      //로그인 세션 토큰요청 REST API 호출
+      fetch(url, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + tokenValue,
+          }
+      }).then(response => response.json()).then(json => {
+          console.log(json);
+          if(json.error == 'invalid_token' ){
+            // ACL Bay application Main 화면으로 이동
+            //this.props.navigation.navigate('App');
+            Alert.alert("토근정보가 유효하지 않습니다.");
+            console.log("토근정보가 유효하지 않습니다.");
+            this._createToken();
+          }else {
+            // this.setState({
+            //     isLoadingNow: false
+            // });
+            console.log("json.loginId:"+json.loginId+", this.state.id: "+this.state.id);
+            if(json.loginId == this.state.id){
+              // ACL Bay application Main 화면으로 이동
+              this.props.navigation.navigate('App');
+            }else{
+              // 토큰정보에 해당하는 ID가 아니므로 오류
+              Alert.alert("로그인 사용자 ID 정보가 유효하지 않습니다.");
+            }
 
-      // var url = 'http://' + CommonConf.urlHost + ':8088/ss/api/loginWithToken';
-      //
-      // fetch(url, {
-      //     method: 'POST',
-      //     headers: {
-      //         Accept: 'application/json',
-      //         'Content-Type': 'application/json',
-      //     },
-      //     body: JSON.stringify({
-      //         "login_token": token
-      //     }),
-      // }).then(response => response.json()).then(json => {
-      //     console.log(json);
-      //
-      //     if (json.resCode != 200) {
-      //         Alert.alert(json.resMsg);
-      //
-      //         // 로그인 토큰 저장
-      //         DefaultPreference.set(CommonConf.PREF_KEY_LOGIN_TOKEN, "")
-      //             .then(function () {
-      //                 console.log('login token saved.')
-      //
-      //             })
-      //
-      //         this.setState({
-      //             isLoadingNow: false
-      //         });
-      //     }
-      //     else {
-      //         this.setState({
-      //             isLoadingNow: false
-      //         });
-      //
-      //         if (json.login_token === "") {
-      //
-      //         }
-      //         else {
-      //             // 로그인 토큰 저장
-      //             DefaultPreference.set(CommonConf.PREF_KEY_LOGIN_TOKEN, json.login_token)
-      //                 .then(function () {
-      //                     console.log('login token saved.')
-      //                 })
-      //         }
-      //         // Alert.alert(json.login_token);
-      //         this.props.navigation.navigate('App')
-      //     }
-      // }).catch(error => {
-      //     Alert.alert("서버 통신 상태가 원활하지 않습니다. 잠시 후 다시 시도해 주세요.");
-      //     this.setState({
-      //         isLoadingNow: false
-      //     })
-      // });
+          }
 
-      this.setState({
-          isLoadingNow: false
+      }).catch(error => {
+          //Alert.alert("서버 통신 상태가 원활하지 않습니다. 잠시 후 다시 시도해 주세요.");
+          console.log(error);
       });
+      console.log("================= _doLoginWithToken end====================");
   }
 
-  // 로그인 진행
-  // Validation Check
-  _doLogin = (id, pw) => {
+  _createToken(){
+    console.log("================= _createToken start====================");
+    const basicAuthStr = base64.encode(CommonConf.authUsername+":"+CommonConf.authPassword);
 
-      Alert.alert(id+pw);
-      let isValid = this._checkValidInputValues(id, pw);
+    var requestOptions = {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'Basic '+basicAuthStr,
+        },
+        body: 'grant_type=password&username=' +this.state.id+ '&password=' +this.state.password
+      };
 
-      console.log("isValid : "+isValid);
-      if (isValid) {
-        // ACL Bay application Main 화면으로 이동
-        this.props.navigation.navigate('App');
-      }else {
+      fetch("http://54.180.77.236:8080/oauth/token", requestOptions)
+        .then(response => response.json())
+        .then(responseData => {
+          console.log(responseData);
+          //TODO: 로컬에 토큰을 저장한다.
+          console.log(responseData.access_token);
+          DefaultPreference.set(CommonConf.PREF_KEY_LOGIN_TOKEN, responseData.access_token)
+          .then(function(){
+            console.log('login token saved.');
+            //Main 화면으로 전환됨
+          }).then(()=>{this.props.navigation.navigate('App');})
 
-      }
-      // if (isValid) {
-      //     this.setState({
-      //         isLoadingNow: true
-      //     })
-      //
-      //     var url = 'http://' + CommonConf.urlHost + ':8088/ss/api/login';
-      //
-      //     fetch(url, {
-      //         method: 'POST',
-      //         headers: {
-      //             Accept: 'application/json',
-      //             'Content-Type': 'application/json',
-      //         },
-      //         body: JSON.stringify({
-      //             "id": id,
-      //             "pw": sha256(id+pw),
-      //             "auto_login": checked
-      //         }),
-      //     }).then(response => response.json()).then(json => {
-      //         console.log(json);
-      //
-      //         if (json.resCode != 200) {
-      //             Alert.alert(json.resMsg);
-      //             this.setState({
-      //                 isLoadingNow: false
-      //             });
-      //         }
-      //         else {
-      //             this.setState({
-      //                 isLoadingNow: false
-      //             });
-      //
-      //             if (json.login_token === "") {
-      //
-      //             }
-      //             else {
-      //
-      //                 const _this = this;
-      //
-      //                 // 로그인 토큰 저장
-      //                 DefaultPreference.set(CommonConf.PREF_KEY_LOGIN_TOKEN, json.login_token)
-      //                     .then(function () {
-      //                         console.log('login token saved.')
-      //
-      //                         // 로그인 유지 설정 값 저장
-      //                         DefaultPreference.set(CommonConf.PREF_KEY_AUTO_LOGIN, checked ? "1" : "0")
-      //                             .then(function () {
-      //                                 console.log('auto login token saved.')
-      //                                 _this.props.navigation.navigate('App')
-      //                             })
-      //
-      //                     })
-      //             }
-      //             // Alert.alert(json.login_token);
-      //
-      //
-      //         }
-      //     }).catch(error => {
-      //         Alert.alert("서버 통신 상태가 원활하지 않습니다. 잠시 후 다시 시도해 주세요.");
-      //         this.setState({
-      //             isLoadingNow: false
-      //         })
-      //     });
-      // }
-  }
 
-  componentDidMount() {
-
-      const _this = this;
-      //
-      // DefaultPreference.get(CommonConf.PREF_KEY_AUTO_LOGIN).then(function (isCheck) {
-      //
-      //     if (isCheck == "1") { // true,false가 아닌 1,0으로 저장 됨
-      //
-      //         _this.setState({
-      //             isCheck: true
-      //         })
-      //
-      //         DefaultPreference.get(CommonConf.PREF_KEY_LOGIN_TOKEN).then(function (value) {
-      //             if (value === "") {
-      //                 // 토근은 없으나 자동로그인은 켜져 있는 경우 (로그아웃 한 경우)
-      //                 DefaultPreference.set(CommonConf.PREF_KEY_AUTO_LOGIN, "0")
-      //                 .then(function () {
-      //                     console.log('auto login off saved.')
-      //                 })
-      //             }
-      //             else {
-      //                 // 로그인유지가 켜져 있고 토큰이 있을 때는 토큰을 통한 로그인 시도
-      //                 _this._doLoginWithToken(value);
-      //             }
-      //         })
-      //     }
-      // })
+        })
+        .catch(error => {
+            Alert.alert("서버 통신 상태가 원활하지 않습니다. 잠시 후 다시 시도해 주세요. ");
+            console.log(error);
+            this.setState({
+                isLoadingNow: false
+            })
+        });
+      console.log("================= _createToken end====================");
   }
 
   onClickListener = (viewId) => {
       //Alert.alert("Alert", "Button pressed "+viewId+"id: "+this.state.id+", pw: "+this.state.password);
-
-      //Alert.alert(viewId);
       if(viewId == "restore_password"){
         // 패스워드 재설정 화면으로 이동
         Alert.alert("restore_password");
         //this.props.navigation.navigate('ResetPassword');
       }else if(viewId == "register"){
         // 회원가입 화면으로 이동
-        //Alert.alert("register");
         this._goRegister();
       }else if(viewId == "login"){
-        // 로그인 처리
-        //Alert.alert("login");
-        this._doLogin(this.state.id, this.state.password);
+        console.log(this.state.isToken);
+        if(!this.state.isToken){
+          // TODO : 토큰이 없는 경우(isToken : true)
+          this._createToken();
+        }else{
+          // TODO : 토큰이 있는 경우(isToken : true)
+          this._doLoginWithToken();
+        }
       }
-
-      //Alert.alert("Alert", "Button pressed "+viewId);
     }
+
+  // 회원가입 화면 이동
+  _goRegister = () => {
+      this.props.navigation.navigate('SignUp');
+  }
+
+  // componentWillMount(){
+  //   console.log("componentWillMount");
+  // }
+
+  componentDidMount() {
+
+    //TODO : 로컬에 토큰이 있는지 확인하고 local 토큰정보를 읽어온다.
+    this._getLocalToken();
+  }
+
+
+  _getLocalToken() {
+    console.log("로컬에서 토큰이 있는지 확인해본다.");
+    const _this = this;
+    DefaultPreference.get(CommonConf.PREF_KEY_LOGIN_TOKEN)
+    .then(function (value) {
+      console.log(value);
+      if(value !== null){
+        //TODO: 토큰이 있으면 true
+        _this.setState({
+          isToken: true,
+          loginToken: value
+        })
+      }else{
+        //TODO: false (=디폴트 값)
+        console.log(_this.state.isToken);
+      }
+    })
+  }
 
   render() {
     return (

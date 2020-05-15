@@ -10,112 +10,74 @@ import {
 
 export default class PriceRadioButton extends Component {
 	state = {
-		value: null,
+		value: 'MONEY',
 	};
 
 	render() {
-		const { PROP } = this.props;
+    const { priceTypeCodes, selectPriceTypeCode } = this.props;
+		//console.log(this.props);
 		const { value } = this.state;
 
-    const priceTypeCodes = [{
-      key : 'dung',
-      text : '덩(99000벨)'
-    },
-    {
-      key : 'giftcard',
-      text : '마일여행권'
-    }];
-
 		return (
-			<View>
+			<View style={styles.container}>
 				{priceTypeCodes.map(res => {
 					return (
-						<View key={res.key} style={styles.container}>
-							<Text style={styles.radioText}>{res.text}</Text>
+						<View key={res.value} style={styles.radioContainer}>
 							<TouchableOpacity
 								style={styles.radioCircle}
 								onPress={() => {
 									this.setState({
-										value: res.key,
+										value: res.value,
 									});
+                  selectPriceTypeCode(res.value);
 								}}>
-                {value === res.key && <View style={styles.selectedRb} />}
+                {value === res.value && <View style={styles.selectedRb} />}
 							</TouchableOpacity>
+              <Text style={styles.radioText}>{res.label}</Text>
 						</View>
 					);
 				})}
-                <Text> Selected: {this.state.value} </Text>
-                <View style={styles.inputContainer}>
-                  <Image
-                    style={styles.inputIcon}
-                    source={require('../../images/icons8-art-prices-48.png')}
-                    />
-                  <TextInput style={styles.inputs}
-                      placeholder="물품 가격 입력"
-                      keyboardType="email-address"
-                      underlineColorAndroid='transparent'
-                      onChangeText={(island) => this.setState({island})}/>
-                </View>
+
+
 			</View>
 		);
 	}
 }
 
 const styles = StyleSheet.create({
-	container: {
-        marginBottom: 35,
-        alignItems: 'center',
-        flexDirection: 'row',
-		justifyContent: 'space-between',
-	},
-    radioText: {
-        marginRight: 35,
-        fontSize: 20,
-        color: '#000',
-        fontWeight: '700'
-    },
+  container: {
+    marginTop: 5,
+    marginBottom: 15,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  radioContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginLeft: 10,
+    borderWidth: 0
+  },
+  radioText: {
+    marginRight: 5,
+		marginLeft: 3,
+    fontSize: 17,
+    color: '#0B173B',
+    fontWeight: '500'
+  },
 	radioCircle: {
-		height: 30,
-		width: 30,
+    height: 20,
+		width: 20,
 		borderRadius: 100,
 		borderWidth: 2,
-		borderColor: '#3740ff',
+		borderColor: '#01A9DB',
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
 	selectedRb: {
-		width: 15,
-		height: 15,
+		width: 10,
+		height: 10,
 		borderRadius: 50,
 		backgroundColor: '#3740ff',
-    },
-    result: {
-        marginTop: 20,
-        color: 'white',
-        fontWeight: '600',
-        backgroundColor: '#F3FBFE',
-    },
-    inputContainer: {
-        borderBottomColor: '#F5FCFF',
-        backgroundColor: '#FFFFFF',
-        borderRadius:30,
-        borderBottomWidth: 1,
-        width:250,
-        height:45,
-        marginBottom:20,
-        flexDirection: 'row',
-        alignItems:'center'
-    },
-    inputs:{
-        height:45,
-        marginLeft:16,
-        borderBottomColor: '#FFFFFF',
-        flex:1,
-    },
-    inputIcon:{
-      width:30,
-      height:30,
-      marginLeft:15,
-      justifyContent: 'center'
-    }
+  }
 });

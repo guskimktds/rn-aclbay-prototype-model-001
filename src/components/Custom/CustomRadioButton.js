@@ -3,29 +3,30 @@ import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 export default class CustomRadioButton extends Component {
 	state = {
-		value: null,
+		value: "SELL",
 	};
 
 	render() {
-		const { PROP } = this.props;
+		const { tradeTypeCodes, selectTradeTypeCode } = this.props;
+		//console.log(this.props);
 		const { value } = this.state;
 
 		return (
 			<View style={styles.container}>
-				{PROP.map(res => {
+				{tradeTypeCodes.map(res => {
 					return (
-						<View key={res.key} style={styles.subContainer}>
-
+						<View key={res.value} style={styles.subContainer}>
 							<TouchableOpacity
 								style={styles.radioCircle}
 								onPress={() => {
 									this.setState({
-										value: res.key,
+										value: res.value,
 									});
+									selectTradeTypeCode(res.value);
 								}}>
-                {value === res.key && <View style={styles.selectedRb} />}
+                {value === res.value && <View style={styles.selectedRb} />}
 							</TouchableOpacity>
-							<Text style={styles.radioText}>{res.text}</Text>
+							<Text style={styles.radioText}>{res.label}</Text>
 						</View>
 					);
 				})}
@@ -48,15 +49,15 @@ const styles = StyleSheet.create({
 		marginLeft: 10
 	},
   radioText: {
-    marginRight: 25,
-		marginLeft: 3,
-    fontSize: 20,
+    marginRight: 15,
+		marginLeft: 5,
+    fontSize: 22,
     color: '#0B173B',
-    fontWeight: '500'
+    fontWeight: '800'
   },
 	radioCircle: {
-		height: 30,
-		width: 30,
+		height: 24,
+		width: 24,
 		borderRadius: 100,
 		borderWidth: 2,
 		borderColor: '#01A9DB',
@@ -64,12 +65,9 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 	selectedRb: {
-		width: 15,
-		height: 15,
+		width: 12,
+		height: 12,
 		borderRadius: 50,
 		backgroundColor: '#0B173B',
-  },
-	subject: {
-		fontSize: 20,
-	}
+  }
 });

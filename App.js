@@ -8,7 +8,9 @@ import { createStackNavigator } from 'react-navigation-stack';
 // import DetailScreen from './src/components/DetailScreen';
 // import ModalScreen from './src/components/ModalScreen';
 import ACLMain from './src/components/Main/ACLMain';
-import ProductRegist from './src/components/Main/ProductRegist';
+import TradeRegist from './src/components/Main/TradeRegist';
+import TradeList from './src/components/Main/TradeList';
+import TradeDetail from './src/components/Main/TradeDetail';
 
 import SignIn from './src/components/Users/SignIn';
 import SignUp from './src/components/Users/SignUp';
@@ -21,8 +23,14 @@ const MainStack = createStackNavigator(
     Main: {
       screen: ACLMain,
     },
-    ProductRegist: {
-      screen: ProductRegist,
+    TradeRegist: {
+      screen: TradeRegist,
+    },
+    TradeList: {
+      screen: TradeList,
+    },
+    TradeDetail: {
+      screen: TradeDetail,
     },
   },
   {
